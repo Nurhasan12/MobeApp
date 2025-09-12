@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct MobeAppApp: App {
+    let persistenceController = PersistenceController.shared
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Home()
+                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .environmentObject(CarViewModel(context: persistenceController.container.viewContext))
         }
     }
 }

@@ -9,17 +9,17 @@ import CoreData
 
 struct PersistenceController {
     static let shared = PersistenceController()
-
+    
     @MainActor
-        static let preview: PersistenceController = {
-            let result = PersistenceController(inMemory: true)
-            let viewContext = result.container.viewContext
-            for i in 0..<10 {
-                let car = Car(context: viewContext)
-                car.carId = UUID()
-                car.nama = "Mobil \(i)"
-                car.tahun = "2020 + \(i)"
-            }
+    static let preview: PersistenceController = {
+        let result = PersistenceController(inMemory: true)
+        let viewContext = result.container.viewContext
+        for i in 0..<10 {
+            let car = Car(context: viewContext)
+            car.carId = UUID()
+            car.name = "Mobil \(i)"
+            car.year = "2020 + \(i)"
+        }
         do {
             try viewContext.save()
         } catch {
@@ -30,9 +30,9 @@ struct PersistenceController {
         }
         return result
     }()
-
+    
     let container: NSPersistentContainer
-
+    
     init(inMemory: Bool = false) {
         container = NSPersistentContainer(name: "Mobee")
         if inMemory {
@@ -42,7 +42,7 @@ struct PersistenceController {
             if let error = error as NSError? {
                 // Replace this implementation with code to handle the error appropriately.
                 // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-
+                
                 /*
                  Typical reasons for an error here include:
                  * The parent directory does not exist, cannot be created, or disallows writing.

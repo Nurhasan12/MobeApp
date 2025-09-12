@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreData
 
 class CarViewModel : ObservableObject {
     @Published var itemsInspection: [InspectionItem] = [
@@ -18,4 +19,85 @@ class CarViewModel : ObservableObject {
         InspectionItem(title: "Plafon", imageName: "plafon", instruction: "Pastikan permukaannya bersih dari noda dan tidak ada yang kendur atau melorot. Perhatikan apakah ada bercak-bercak air atau jamur, yang bisa menjadi tanda adanya kebocoran. Sentuh permukaannya untuk memastikan tidak ada bagian yang lepas dari rekatannya. Cek juga lampu kabin dan lampu baca di plafon, pastikan semuanya menyala dengan normal. Selain itu, periksa juga penutup sunroof (jika ada) dan pastikan bisa dibuka dan ditutup dengan lancar."),
         InspectionItem(title: "Headunit & Audio", imageName: "audio", instruction: "Pertama, nyalakan headunit dan pastikan bisa beroperasi dengan normal, tidak ada layar yang mati atau tombol yang tidak berfungsi. Coba semua sumber audio, seperti radio, USB, dan Bluetooth, untuk memastikan semuanya bisa tersambung dan memutar suara dengan baik. Dengarkan kualitas suara dari setiap speaker, pastikan tidak ada suara pecah, dengung, atau speaker yang mati. Cek juga navigasi atau kamera mundur (jika ada) dan pastikan semuanya berfungsi tanpa masalah."),
     ]
+    
+    
+    @Published var cars: [Car] = []
+    private let context: NSManagedObjectContext
+    
+    init(context: NSManagedObjectContext) {
+        self.context = context
+        fetchCars()
+    }
+    
+    func fetchCars() {
+        let request: NSFetchRequest<Car> = Car.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Car.createdAt, ascending: true)]
+        do {
+            cars = try context.fetch(request)
+        } catch {
+            print("Fetch gagal: \(error.localizedDescription)")
+        }
+    }
+    
+    func addCar(
+        name: String, year: String, kilometer: String, location: String, note: String, ) {
+            let car = Car(context: context)
+            car.createdAt = Date()
+            car.carId = UUID()
+            car.name = name
+            car.year = year
+            car.kilometer = kilometer
+            car.location = location
+            car.note = note
+            save()
+        }
+    
+    func addComponentsIfNotExist(to car: Car, items: [InspectionItem]) {
+        // take all component in spesific car
+        let existingComponents = (car.komponen as? Set<Component>) ?? []
+
+        for item in items {
+            let name = item.title
+
+            // check if car have same component
+            if existingComponents.contains(where: { $0.name == name }) {
+                print("❌ Komponen \(name) sudah ada di mobil \(car.name ?? "")")
+                continue
+            }
+
+            // if component not exist
+            let component = Component(context: context)
+            component.componentId = UUID()
+            component.name = name
+            component.car = car
+            car.addToKomponen(component)
+
+            print("✅ Komponen \(name) ditambahkan ke mobil \(car.name ?? "")")
+        }
+
+        save()
+    }
+    
+    func deleteItems(offsets: IndexSet) {
+        offsets.map { cars[$0] }.forEach(context.delete)
+        
+        do {
+            try context.save()
+        } catch {
+            // Replace this implementation with code to handle the error appropriately.
+            // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+        }
+    }
+    
+    private func save() {
+        do {
+            try context.save()
+            fetchCars()
+        } catch {
+            print("Save gagal: \(error.localizedDescription)")
+        }
+    }
 }
+

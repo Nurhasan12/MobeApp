@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct ShowInspection: View {
     
     var body: some View {
         InspectionListItem()
+        
     }
 }
 

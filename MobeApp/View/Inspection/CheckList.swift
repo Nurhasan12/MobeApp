@@ -38,7 +38,7 @@ struct CheckList: View {
         }
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: 8))
-      
+        
     }
 }
 
@@ -66,7 +66,7 @@ func expanded(item: InspectionItem, selectedStatus: Binding<Int>, notes: Binding
         TextField("Tambahkan Catatan", text: notes, axis: .vertical)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .padding(16)
-
+        
     }
     
 }
@@ -95,14 +95,12 @@ func statusButton(
     }
     .background(selectedStatus.wrappedValue == option ? clickColor : .white)
     .clipShape(RoundedRectangle(cornerRadius: 8))
-
+    
     .onTapGesture {
         selectedStatus.wrappedValue = option
     }
 }
 
-#Preview {
-    InspectionListItem()
-}
+
 
 

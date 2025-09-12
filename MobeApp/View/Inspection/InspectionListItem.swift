@@ -7,26 +7,24 @@
 
 import SwiftUI
 
+
 struct InspectionListItem: View {
-    let viewModel: CarViewModel = CarViewModel()
+    @EnvironmentObject var viewModel: CarViewModel
     
     var body: some View {
-            ScrollView {
-                VStack {
-                    ForEach(viewModel.items) { item in
-                        CheckList(item: item)
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 4)
+        ScrollView {
+            VStack {
+                ForEach(viewModel.itemsInspection) { item in
+                    CheckList(item: item)
                 }
-                .padding(.top, 48)
+                .padding(.horizontal)
+                .padding(.vertical, 4)
             }
-            .background(.secondary)
+            .padding(.top, 48)
+        }
+        .background(.secondary)
     }
 }
 
-#Preview {
-    InspectionListItem()
-}
 
 

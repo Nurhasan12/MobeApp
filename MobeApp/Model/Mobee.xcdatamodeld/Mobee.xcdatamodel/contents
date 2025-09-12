@@ -2,25 +2,26 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788.4" systemVersion="24G84" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Car" representedClassName="Car" syncable="YES" codeGenerationType="class">
         <attribute name="carId" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="foto" optional="YES" attributeType="URI"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="image" optional="YES" attributeType="URI"/>
         <attribute name="kilometer" optional="YES" attributeType="String"/>
-        <attribute name="lokasi" optional="YES" attributeType="String"/>
-        <attribute name="nama" optional="YES" attributeType="String"/>
-        <attribute name="tahun" optional="YES" attributeType="String"/>
-        <relationship name="komponen" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Komponen" inverseName="car" inverseEntity="Komponen"/>
+        <attribute name="location" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="note" optional="YES" attributeType="String"/>
+        <attribute name="year" optional="YES" attributeType="String"/>
+        <relationship name="komponen" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Component" inverseName="car" inverseEntity="Component"/>
     </entity>
     <entity name="Checklist" representedClassName="Checklist" syncable="YES" codeGenerationType="class">
-        <attribute name="catatan" optional="YES" attributeType="String"/>
         <attribute name="checklistId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="komponenId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="skala" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="tanggal" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="komponen" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Komponen" inverseName="checklist" inverseEntity="Komponen"/>
+        <attribute name="note" optional="YES" attributeType="String"/>
+        <attribute name="stats" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="komponen" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Component" inverseName="checklist" inverseEntity="Component"/>
     </entity>
-    <entity name="Komponen" representedClassName="Komponen" syncable="YES" codeGenerationType="class">
+    <entity name="Component" representedClassName="Component" syncable="YES" codeGenerationType="class">
         <attribute name="carId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="nama" optional="YES" attributeType="String"/>
+        <attribute name="componentId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
         <relationship name="car" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Car" inverseName="komponen" inverseEntity="Car"/>
         <relationship name="checklist" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Checklist" inverseName="komponen" inverseEntity="Checklist"/>
     </entity>
