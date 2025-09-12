@@ -17,7 +17,7 @@ struct ListCar: View {
         
         List {
             ForEach(viewModel.cars) {car in
-                Text(car.name ?? "GdMobil")
+                Text(car.name ?? "")
                     .onTapGesture {
                         showComponent = true
                         idCar = car.carId ?? UUID()
