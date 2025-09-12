@@ -33,6 +33,7 @@ struct Home: View {
                     ForEach(viewModel.cars) { car in
                         CarRow(car: car)
                     }
+                    .onDelete(perform: viewModel.deleteItems)
                 }
                 .navigationTitle("Inspeksi")
                 .toolbar(){
@@ -67,6 +68,8 @@ struct Home: View {
 
 
 struct WelcomeView: View {
+    @State private var showInfo = false
+    @State private var showNew = false
     var body: some View {
         ZStack {
             Color(.systemBackground).ignoresSafeArea()
@@ -86,6 +89,24 @@ struct WelcomeView: View {
                 //                } ) .padding(40)
             }
             
+        }
+        .navigationTitle("Inspeksi")
+        .toolbar(){
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showNew = true
+                } label: { Image(systemName: "plus") }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showInfo = true
+                } label: { Image(systemName: "info.circle") }
+            }
+        }
+        .sheet(isPresented: $showInfo) { InspectInfoView()
+            .presentationDetents([.large]) }
+        .sheet(isPresented: $showNew) {
+            AddCar()
         }
     }
 }
@@ -119,29 +140,29 @@ struct CarRow: View {
 }
 
 
-struct ListCar: View {
-    @EnvironmentObject var viewModel: CarViewModel
-    @State private var selectedCar: Car? = nil
-    
-    var body: some View {
-        List {
-            ForEach(viewModel.cars) { car in
-                CarRow(car: car)
-                    .onTapGesture { selectedCar = car }
-                    
-            }
-            .onDelete(perform: viewModel.deleteItems)
-        }
-        .sheet(item: $selectedCar, onDismiss: didDismiss) { car in
-            // Kalau ShowInspection butuh car, lebih enak begini:
-            //            ShowInspection(car: car)
-        }
-    }
-    
-    private func didDismiss() {
-        guard let car = selectedCar else { return }
-        viewModel.addComponentsIfNotExist(to: car, items: viewModel.itemsInspection)
-        // Reset pilihan jika mau:
-        selectedCar = nil
-    }
-}
+//struct ListCar: View {
+//    @EnvironmentObject var viewModel: CarViewModel
+//    @State private var selectedCar: Car? = nil
+//    
+//    var body: some View {
+//        List {
+//            ForEach(viewModel.cars) { car in
+//                CarRow(car: car)
+//                    .onTapGesture { selectedCar = car }
+//                    
+//            }
+//            .onDelete(perform: viewModel.deleteItems)
+//        }
+//        .sheet(item: $selectedCar, onDismiss: didDismiss) { car in
+//            // Kalau ShowInspection butuh car, lebih enak begini:
+//            //            ShowInspection(car: car)
+//        }
+//    }
+//    
+//    private func didDismiss() {
+//        guard let car = selectedCar else { return }
+//        viewModel.addComponentsIfNotExist(to: car, items: viewModel.itemsInspection)
+//        // Reset pilihan jika mau:
+//        selectedCar = nil
+//    }
+//}
