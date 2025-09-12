@@ -130,6 +130,7 @@ struct ListCar: View {
                     .onTapGesture { selectedCar = car }
                     
             }
+            .onDelete(perform: viewModel.deleteItems)
         }
         .sheet(item: $selectedCar, onDismiss: didDismiss) { car in
             // Kalau ShowInspection butuh car, lebih enak begini:
