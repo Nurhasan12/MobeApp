@@ -9,9 +9,10 @@ import Foundation
 
 struct InspectionItem : Identifiable {
     let id = UUID()
-    let title: String
-    let imageName: String
+    var title: String
+    var imageName: String
     let instruction: String
-    
+    var status: Int = 0
+    var note: String = ""
 }
 

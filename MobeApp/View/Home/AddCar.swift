@@ -43,18 +43,7 @@ struct AddCar: View {
                             Text("Foto Mobil (opsional)").font(.subheadline).foregroundStyle(.secondary)
                         }
                         PhotosPicker(selection: $pickerItem, matching: .images) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 12).fill(Color(.systemBlue))
-                                HStack {
-                                    Image(systemName: "arrow.up.doc.fill")
-                                    Text(photoData == nil ? "Upload Foto" : "Ganti Foto").fontWeight(.semibold)
-                                    Spacer()
-                                    if photoData != nil { Image(systemName: "checkmark.circle.fill").foregroundStyle(.green) }
-                                }
-                                .foregroundStyle(.white)
-                                .padding(12)
-                            }
-                            .frame(height: 48)
+                            PhotoUploadButton(hasPhoto: photoData != nil)
                         }
                         .onChange(of: pickerItem, initial: false) { oldItem, newItem in
                             Task {
@@ -96,7 +85,10 @@ struct AddCar: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Simpan") {
-                        viewModel.addCar(name: name, year: year, kilometer: kilometerText, location: location, note: notes)
+                        let defaultData = UIImage(
+                            systemName: "car.fill"
+                        )?.pngData()
+                        viewModel.addCar(name: name, year: year, kilometer: kilometerText, location: location, note: notes, img: photoData ?? defaultData)
                         
                         dismiss()
                         print(viewModel.cars)
@@ -152,6 +144,4 @@ struct LabeledField: View {
     }
 }
 
-#Preview {
-    Home()
-}
+

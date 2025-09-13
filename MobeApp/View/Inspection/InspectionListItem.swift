@@ -14,8 +14,8 @@ struct InspectionListItem: View {
     var body: some View {
         ScrollView {
             VStack {
-                ForEach(viewModel.itemsInspection) { item in
-                    CheckList(item: item)
+                ForEach($viewModel.itemsInspection) { $item in
+                    CheckList(item: $item)
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 4)
@@ -24,6 +24,14 @@ struct InspectionListItem: View {
         }
         .background(.secondary)
     }
+}
+
+#Preview {
+    let context = PersistenceController.preview.container.viewContext
+    let carViewModel = CarViewModel(context: context)
+    
+    return InspectionListItem()
+        .environmentObject(carViewModel)
 }
 
 

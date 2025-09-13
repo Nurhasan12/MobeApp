@@ -17,16 +17,28 @@ struct ListCar: View {
         
         List {
             ForEach(viewModel.cars) {car in
-                Text(car.name ?? "GdMobil")
-                    .onTapGesture {
-                        showComponent = true
-                        idCar = car.carId ?? UUID()
+                HStack {
+                    if let data = car.image, let uiImg = UIImage(data: data) {
+                        Image(uiImage: uiImg)
+                            .resizable()
+                            .frame(width: 30, height: 30)
                     }
+                    Spacer()
+                    
+                    Text(car.name ?? "")
+                }
+                .onTapGesture {
+                    idCar = car.carId ?? UUID()
+                    if let selectedCar = viewModel.cars.first(where: { $0.carId == car.carId }) {
+                        viewModel.syncInspectionItems(for: selectedCar)
+                    }
+                    showComponent = true
+                }
             }
             .onDelete(perform: viewModel.deleteItems)
         }
         .sheet(isPresented: $showComponent, onDismiss: didDismiss) {
-            ShowInspection()
+            InspectionListItem()
         }
         
     }
@@ -35,6 +47,21 @@ struct ListCar: View {
         if let selectedCar = car.first(where: { $0.carId == idCar }) {
             let items = viewModel.itemsInspection
             viewModel.addComponentsIfNotExist(to: selectedCar, items: items)
+            
+            if let komponenSet = selectedCar.komponen as? Set<Component> {
+                for component in komponenSet {
+                    if let item = viewModel.itemsInspection.first(where: { $0.title == component.name }) {
+                        viewModel.addOrUpdateChecklist(
+                            to: component,
+                            status: item.status,
+                            notes: item.note
+                        )
+                    }
+                }
+            }
+            
+            let total =  viewModel.totalStatus(for: selectedCar)
+            print("total status: \(total)")
         }
     }
 }
