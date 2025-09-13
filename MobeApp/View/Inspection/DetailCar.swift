@@ -57,7 +57,10 @@ struct DetailCar: View {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 24) {
                     MenuItem(icon: "car.fill", title: "Eksterior", count: 0, total: 10)
                     MenuItem(icon: "steeringwheel", title: "Interior", count: 0, total: 8)
-                        .onTapGesture {showInteriorModal = true}
+                        .onTapGesture {
+                            viewModel.syncInspectionItems(for: car)
+                            showInteriorModal = true}
+                    
                     
                     MenuItem(icon: "gearshape.fill", title: "Mesin", count: 0, total: 8)
                     MenuItem(icon: "doc.fill", title: "Dokumen", count: 0, total: 5)
@@ -92,14 +95,35 @@ struct DetailCar: View {
         .sheet(isPresented: $showEdit) {
             EditCarView(car: car)
         }
-        .sheet(isPresented: $showInteriorModal) {
+        .sheet(isPresented: $showInteriorModal, onDismiss: didDismiss) {
             InspectionListView()
                 .environmentObject(viewModel)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
     }
-}
+    func didDismiss() {
+                let items = viewModel.itemsInspection
+                viewModel.addComponentsIfNotExist(to: car, items: items)
+                
+                if let komponenSet = car.komponen as? Set<Component> {
+                    for component in komponenSet {
+                        if let item = viewModel.itemsInspection.first(where: { $0.title == component.name }) {
+                            viewModel.addOrUpdateChecklist(
+                                to: component,
+                                status: item.status,
+                                notes: item.note
+                            )
+                        }
+                    }
+                }
+                
+                let total =  viewModel.totalStatus(for: car)
+                print("total status: \(total)")
+            }
+        }
+
+
 
 struct MenuItem: View {
     var icon: String
@@ -129,3 +153,5 @@ struct MenuItem: View {
         }
     }
 }
+
+
