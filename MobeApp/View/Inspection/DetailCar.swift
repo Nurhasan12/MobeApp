@@ -11,6 +11,8 @@ import UIKit
 struct DetailCar: View {
     @State private var showEdit = false
     @State private var showInteriorModal = false
+
+
     @EnvironmentObject var viewModel: CarViewModel
     let car: Car
     
@@ -56,6 +58,7 @@ struct DetailCar: View {
                     MenuItem(icon: "car.fill", title: "Eksterior", count: 0, total: 10)
                     MenuItem(icon: "steeringwheel", title: "Interior", count: 0, total: 8)
                         .onTapGesture {showInteriorModal = true}
+                    
                     MenuItem(icon: "gearshape.fill", title: "Mesin", count: 0, total: 8)
                     MenuItem(icon: "doc.fill", title: "Dokumen", count: 0, total: 5)
                 }

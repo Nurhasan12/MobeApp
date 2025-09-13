@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct CheckList: View {
-    let item: InspectionItem
-    var onExpand: (() -> Void)? = nil
+    
+    @Binding var item: InspectionItem
+    var onTap: () -> Void  // tambahkan ini
     
     @State private var isExpanded = false
-    @State private var selectedStatus = -1
+    @State private var selectedStatus = 0
     @State private var notes: String = ""
     
     var body: some View {
@@ -29,28 +30,27 @@ struct CheckList: View {
             .padding(.vertical, 20)
             .contentShape(Rectangle())
             .onTapGesture {
-                withAnimation {
-                    isExpanded.toggle()
-                    if isExpanded {
-                        onExpand?()                      }
-                }
+                withAnimation { isExpanded.toggle() }
             }
             .padding(.horizontal)
-            .padding(.vertical, 4)
+            .padding(.vertical,4)
             
             if isExpanded {
-                expanded(item: item, selectedStatus: $selectedStatus, notes: $notes)
+                expanded(item: $item)
             }
         }
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        
     }
 }
 
 
-func expanded(item: InspectionItem, selectedStatus: Binding<Int>, notes: Binding<String>) -> some View {
-    VStack  {
-        Image(item.imageName)
+func expanded(
+    item: Binding<InspectionItem>
+) -> some View {
+    VStack {
+        Image(item.wrappedValue.imageName)
             .resizable()
             .scaledToFit()
             .cornerRadius(4)
@@ -58,22 +58,48 @@ func expanded(item: InspectionItem, selectedStatus: Binding<Int>, notes: Binding
         
         HStack(alignment: .top) {
             Image(systemName: "info.circle")
-            Text(item.instruction)
+            Text(item.wrappedValue.instruction)
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         
+        
         HStack(spacing: 30) {
-            statusButton(label: "Bersih", image: "hand.thumbsup.fill", color: .green, clickColor: .greenCustom, option: 0, selectedStatus: selectedStatus, degree: 0)
-            statusButton(label: "Noda", image: "hand.thumbsup.fill", color: .yellow, clickColor: .yellowCustom, option: 1, selectedStatus: selectedStatus, degree: 270)
-            statusButton(label: "Sobek", image: "hand.thumbsdown.fill", color: .red, clickColor: .redCustom, option: 2, selectedStatus: selectedStatus, degree: 0)
+            statusButton(
+                label: "Bersih",
+                image: "hand.thumbsup.fill",
+                color: .green,
+                clickColor: .greenCustom,
+                option: 5,
+                selectedStatus: item.status,
+                degree: 0
+            )
+            statusButton(
+                label: "Noda",
+                image: "hand.thumbsup.fill",
+                color: .yellow,
+                clickColor: .yellowCustom,
+                option: 3,
+                selectedStatus: item.status,
+                degree: 270
+            )
+            statusButton(
+                label: "Sobek",
+                image: "hand.thumbsdown.fill",
+                color: .red,
+                clickColor: .redCustom,
+                option: 1,
+                selectedStatus: item.status,
+                degree: 0
+            )
         }
         
-        TextField("Tambahkan Catatan", text: notes, axis: .vertical)
+        TextField("Tambahkan Catatan", text: item.note, axis: .vertical)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .padding(16)
     }
 }
+
 
 func statusButton(
     label: String,
@@ -99,6 +125,7 @@ func statusButton(
     }
     .background(selectedStatus.wrappedValue == option ? clickColor : .white)
     .clipShape(RoundedRectangle(cornerRadius: 8))
+    
     .onTapGesture {
         selectedStatus.wrappedValue = option
     }

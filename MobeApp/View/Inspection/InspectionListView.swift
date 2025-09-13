@@ -19,8 +19,8 @@ struct InspectionListView: View {
                         .bold()
                         .padding(.top, 16)
 
-                    ForEach(viewModel.itemsInspection) { item in
-                        CheckList(item: item) {
+                    ForEach($viewModel.itemsInspection) { $item in
+                        CheckList(item: $item){
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 proxy.scrollTo(item.id, anchor: .top)
                             }

@@ -29,10 +29,6 @@ class CarViewModel : ObservableObject {
         fetchCars()
     }
     
-    convenience init() {
-        self.init(context: PersistenceController.shared.container.viewContext)
-    }
-    
     func fetchCars() {
         let request: NSFetchRequest<Car> = Car.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(keyPath: \Car.createdAt, ascending: true)]
@@ -43,26 +39,50 @@ class CarViewModel : ObservableObject {
         }
     }
     
-    func addCar(
-        name: String,
-        year: String,
-        kilometer: String,
-        location: String,
-        note: String,
-        imageData: Data?
-    ) {
-        let car = Car(context: context)
-        car.createdAt = Date()
-        car.carId = UUID()
-        car.name = name
-        car.year = year
-        car.kilometer = kilometer
-        car.location = location
-        car.note = note
-        car.imageData = imageData
-        save()
+    func totalStatus(for car: Car) -> Int {
+        let komponenSet = car.komponen as? Set<Component> ?? []
+        return komponenSet.compactMap { $0.checklist?.stats }
+                         .map { Int($0) }
+                         .reduce(0, +)
     }
 
+    
+    func syncInspectionItems(for car: Car) {
+        // Reset dulu status & note semua item
+        for i in 0..<itemsInspection.count {
+            itemsInspection[i].status = 0
+            itemsInspection[i].note = ""
+        }
+
+        // Ambil semua komponen dari mobil
+        if let komponenSet = car.komponen as? Set<Component> {
+            for component in komponenSet {
+                // Cari itemInspection yang cocok dengan nama component
+                if let index = itemsInspection.firstIndex(where: { $0.title == component.name }) {
+                    if let checklist = component.checklist {
+                        // Update nilai status & note dari Core Data
+                        itemsInspection[index].status = Int(checklist.stats)
+                        itemsInspection[index].note = checklist.note ?? ""
+                    }
+                }
+            }
+        }
+    }
+
+    
+    func addCar(
+        name: String, year: String, kilometer: String, location: String, note: String, img: Data? ) {
+            let car = Car(context: context)
+            car.createdAt = Date()
+            car.carId = UUID()
+            car.name = name
+            car.year = year
+            car.kilometer = kilometer
+            car.location = location
+            car.note = note
+            car.imageData = img
+            save()
+        }
     
     func updateCar(_ car: Car,
                    name: String,
@@ -107,16 +127,40 @@ class CarViewModel : ObservableObject {
         save()
     }
     
+    func addOrUpdateChecklist(to component: Component, status: Int, notes: String) {
+        // Ambil checklist yang sudah ada
+
+        if let checklist = component.checklist {
+            // Kalau sudah ada, update
+            checklist.stats = Int16(status)
+            checklist.note = notes
+
+            if let carName = component.car?.name, let compName = component.name {
+                print("🔄 Checklist di \(compName) mobil \(carName) berhasil diupdate")
+            }
+        } else {
+            // Kalau belum ada, buat baru
+            let checklist = Checklist(context: context)
+            checklist.checklistId = UUID()
+            checklist.stats = Int16(status)
+            checklist.note = notes
+            checklist.komponen = component
+
+            if let carName = component.car?.name, let compName = component.name {
+                print("✅ Checklist baru ditambahkan ke \(compName) di mobil \(carName)")
+            }
+        }
+
+        save()
+    }
+
+
+    
     func deleteItems(offsets: IndexSet) {
         offsets.map { cars[$0] }.forEach(context.delete)
         
         do {
-            try context.save()
-        } catch {
-            // Replace this implementation with code to handle the error appropriately.
-            // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-            let nsError = error as NSError
-            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            save()
         }
     }
     
@@ -129,4 +173,3 @@ class CarViewModel : ObservableObject {
         }
     }
 }
-
