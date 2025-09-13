@@ -14,4 +14,3 @@ struct InspectionItem : Identifiable {
     let instruction: String
     
 }
-

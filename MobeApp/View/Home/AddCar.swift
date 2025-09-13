@@ -96,7 +96,7 @@ struct AddCar: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Simpan") {
-                        viewModel.addCar(name: name, year: year, kilometer: kilometerText, location: location, note: notes)
+                        viewModel.addCar(name: name, year: year, kilometer: kilometerText, location: location, note: notes, imageData: photoData)
                         
                         dismiss()
                         print(viewModel.cars)

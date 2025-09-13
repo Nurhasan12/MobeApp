@@ -29,6 +29,10 @@ class CarViewModel : ObservableObject {
         fetchCars()
     }
     
+    convenience init() {
+        self.init(context: PersistenceController.shared.container.viewContext)
+    }
+    
     func fetchCars() {
         let request: NSFetchRequest<Car> = Car.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(keyPath: \Car.createdAt, ascending: true)]
@@ -40,17 +44,42 @@ class CarViewModel : ObservableObject {
     }
     
     func addCar(
-        name: String, year: String, kilometer: String, location: String, note: String, ) {
-            let car = Car(context: context)
-            car.createdAt = Date()
-            car.carId = UUID()
-            car.name = name
-            car.year = year
-            car.kilometer = kilometer
-            car.location = location
-            car.note = note
-            save()
-        }
+        name: String,
+        year: String,
+        kilometer: String,
+        location: String,
+        note: String,
+        imageData: Data?
+    ) {
+        let car = Car(context: context)
+        car.createdAt = Date()
+        car.carId = UUID()
+        car.name = name
+        car.year = year
+        car.kilometer = kilometer
+        car.location = location
+        car.note = note
+        car.imageData = imageData
+        save()
+    }
+
+    
+    func updateCar(_ car: Car,
+                   name: String,
+                   year: String,
+                   kilometer: String,
+                   location: String,
+                   note: String,
+                   imageData: Data?) {
+        car.name = name
+        car.year = year
+        car.kilometer = kilometer
+        car.location = location
+        car.note = note
+        car.imageData = imageData
+        save()
+    }
+
     
     func addComponentsIfNotExist(to car: Car, items: [InspectionItem]) {
         // take all component in spesific car

@@ -10,14 +10,25 @@ import SwiftUI
 
 struct CarRow: View {
     let car: Car
-    // @EnvironmentObject var viewModel: CarViewModel  // ga perlu kalau row cuma render UI
     
     var body: some View {
         HStack(spacing: 12) {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color(.secondarySystemBackground))
-                .frame(width: 56, height: 56)
-                .overlay(Image(systemName: "car.fill").foregroundStyle(.secondary))
+            if let data = car.imageData, let uiImage = UIImage(data: data) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 56, height: 56)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipped()
+            } else {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(.secondarySystemBackground))
+                    .frame(width: 56, height: 56)
+                    .overlay(
+                        Image(systemName: "car.fill")
+                            .foregroundStyle(.secondary)
+                    )
+            }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(car.name ?? "")
@@ -32,6 +43,6 @@ struct CarRow: View {
             Spacer()
         }
         .padding(.vertical, 4)
-        .contentShape(Rectangle()) // biar seluruh row bisa di-tap
+        .contentShape(Rectangle())
     }
 }
