@@ -66,7 +66,7 @@ func expanded(
         
         HStack(spacing: 30) {
             statusButton(
-                label: "Bersih",
+                label: "Normal",
                 image: "hand.thumbsup.fill",
                 color: .green,
                 clickColor: .greenCustom,
@@ -75,7 +75,7 @@ func expanded(
                 degree: 0
             )
             statusButton(
-                label: "Noda",
+                label: "Perlu Perhatian",
                 image: "hand.thumbsup.fill",
                 color: .yellow,
                 clickColor: .yellowCustom,
@@ -84,7 +84,7 @@ func expanded(
                 degree: 270
             )
             statusButton(
-                label: "Sobek",
+                label: "Tidak Layak",
                 image: "hand.thumbsdown.fill",
                 color: .red,
                 clickColor: .redCustom,
