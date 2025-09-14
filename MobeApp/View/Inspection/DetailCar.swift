@@ -79,6 +79,7 @@ struct DetailCar: View {
                         .cornerRadius(12)
                 }
                 .padding(.top, 20)
+                // sheet
             }
             .padding()
         }
