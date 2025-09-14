@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788.4" systemVersion="24G84" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Car" representedClassName="Car" syncable="YES" codeGenerationType="class">
+        <attribute name="carId" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="imageData" optional="YES" attributeType="Binary"/>
+        <attribute name="kilometer" optional="YES" attributeType="String"/>
+        <attribute name="location" optional="YES" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="note" optional="YES" attributeType="String"/>
+        <attribute name="year" optional="YES" attributeType="String"/>
+        <relationship name="komponen" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Component" inverseName="car" inverseEntity="Component"/>
+    </entity>
+    <entity name="Checklist" representedClassName="Checklist" syncable="YES" codeGenerationType="class">
+        <attribute name="checklistId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="komponenId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="note" optional="YES" attributeType="String"/>
+        <attribute name="stats" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="komponen" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Component" inverseName="checklist" inverseEntity="Component"/>
+    </entity>
+    <entity name="Component" representedClassName="Component" syncable="YES" codeGenerationType="class">
+        <attribute name="carId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="componentId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="car" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Car" inverseName="komponen" inverseEntity="Car"/>
+        <relationship name="checklist" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Checklist" inverseName="komponen" inverseEntity="Checklist"/>
+    </entity>
+</model>
