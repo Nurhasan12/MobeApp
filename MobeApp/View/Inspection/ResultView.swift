@@ -8,8 +8,15 @@
 import SwiftUI
 
 struct ResultView: View {
+    @EnvironmentObject var viewModel: CarViewModel
+    
+    let carReport: Car
+    
     
     var body : some View {
+        let summary = viewModel.statusSummary(for: carReport)
+        let percentage = viewModel.percentageScore(for: carReport)
+        let countComponent = viewModel.countComponent(for: carReport)
         NavigationStack {
             ZStack {
                 Color(.systemGray6).ignoresSafeArea()
@@ -20,8 +27,8 @@ struct ResultView: View {
                         // Informasi Kendaraan (Kartu Utama)
                         VStack(alignment: .leading, spacing: 15) {
                             HStack(alignment: .top) {
-                                
-                                    Image(systemName: "car.fill")
+                                if let data = carReport.imageData, let uiImg = UIImage(data: data) {
+                                    Image(uiImage: uiImg)
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 60, height: 60)
@@ -29,16 +36,16 @@ struct ResultView: View {
                                         .background(Color.blue)
                                         .clipShape(Circle())
                                         .shadow(radius: 5)
-                                
+                                }
                                 
                                 VStack(alignment: .leading) {
-                                    Text("NAMA SAYA")
+                                    Text(carReport.name ?? "")
                                         .font(.title2)
                                         .fontWeight(.semibold)
-                                    Text("2026")
+                                    Text(carReport.year ?? "")
                                         .font(.subheadline)
                                         .foregroundStyle(.secondary)
-                                    Text("LOKASI")
+                                    Text(carReport.location ?? "")
                                         .font(.caption)
                                 }
                                 .padding(.leading, 10)
@@ -52,7 +59,7 @@ struct ResultView: View {
                                 HStack(spacing: 5) {
                                     Image(systemName: "gauge.with.dots.needle.67percent")
                                         .foregroundStyle(.secondary)
-                                    Text(" 2026 KM")
+                                    Text("\(carReport.kilometer ?? "-") Km")
                                         .font(.subheadline)
                                         .foregroundStyle(.secondary)
                                 }
@@ -62,7 +69,7 @@ struct ResultView: View {
                                 HStack(spacing: 5) {
                                     Image(systemName: "calendar")
                                         .foregroundStyle(.secondary)
-                                    Text("03 September 2025")
+                                    Text(carReport.createdAt ?? Date(), style: .date)
                                         .font(.subheadline)
                                         .foregroundStyle(.secondary)
                                 }
@@ -87,8 +94,9 @@ struct ResultView: View {
                                     .foregroundStyle(.secondary)
                                 
                                 HStack(spacing: 20) {
+                
                                     VStack {
-                                        Text("1")
+                                        Text("\(summary.critical)")
                                             .font(.title)
                                             .fontWeight(.bold)
                                             .foregroundStyle(.red)
@@ -97,11 +105,20 @@ struct ResultView: View {
                                             .foregroundStyle(.secondary)
                                     }
                                     VStack {
-                                        Text("2")
+                                        Text("\(summary.attention)")
                                             .font(.title)
                                             .fontWeight(.bold)
                                             .foregroundStyle(.orange)
                                         Text("Perhatian")
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    VStack {
+                                        Text("\(summary.good)")
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundStyle(.green)
+                                        Text("Aman")
                                             .font(.subheadline)
                                             .foregroundStyle(.secondary)
                                     }
@@ -110,10 +127,10 @@ struct ResultView: View {
                             }
                             Spacer()
                             
-                            Text("100%")
+                            Text("\(percentage)%")
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
-                                .foregroundStyle(.green)
+                                .foregroundStyle(percentage > 70 ? .green : (percentage > 40 ? .orange : .red))
                             
                             
                         }
@@ -139,7 +156,7 @@ struct ResultView: View {
                                         .font(.subheadline)
                                         .fontWeight(.bold)
                                     Spacer()
-                                    Text("8/10")
+                                    Text("\(countComponent)/8")
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
                                 }
@@ -150,45 +167,61 @@ struct ResultView: View {
                                 
                                 // Detail Item
                                 VStack(spacing: 12) {
-                                    DetailItemView(title: "Jok Mobil", status: .critical, description: "Ini eror")
-                                    Divider()
-                                    DetailItemView(title: "Karpet", status: .good)
-                                    Divider()
-                                    DetailItemView(title: "Dashboard", status: .good)
+                                    if let komponenSet = carReport.komponen as? Set<Component> {
+                                        ForEach(komponenSet.sorted(by: { $0.name ?? "" < $1.name ?? "" }), id: \.self) { comp in
+                                            if let stats = comp.checklist?.stats, stats > 0 {
+                                                // mapping angka ke enum langsung di parameter
+                                                DetailItemView(
+                                                    title: comp.name ?? "Unknown",
+                                                    status: {
+                                                        switch stats {
+                                                        case 5: return .good
+                                                        case 3: return .attention
+                                                        case 1: return .critical
+                                                        default: return .attention
+                                                        }
+                                                    }(),
+                                                    description: comp.checklist?.note
+                                                )
+                                                Divider()
+                                            }
+                                        }
+                                    }
+
                                 }
                                 .padding(12)
                                 .background(.ultraThinMaterial)
                                 .cornerRadius(10)
                             }
                             
-                            // Kategori Eksterior
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Image(systemName: "car.fill")
-                                        .font(.subheadline)
-                                    Text("Eksterior")
-                                        .font(.subheadline)
-                                        .fontWeight(.bold)
-                                    Spacer()
-                                    Text("10/10")
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
-                                }
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 12)
-                                .background(.thinMaterial)
-                                .cornerRadius(10)
-                                
-                                // Detail Item
-                                VStack(spacing: 12) {
-                                    DetailItemView(title: "Bodi Mobil", status: .good)
-                                    Divider()
-                                    DetailItemView(title: "Kaca Jendela", status: .good)
-                                }
-                                .padding(12)
-                                .background(.ultraThinMaterial)
-                                .cornerRadius(10)
-                            }
+//                            // Kategori Eksterior
+//                            VStack(alignment: .leading, spacing: 8) {
+//                                HStack {
+//                                    Image(systemName: "car.fill")
+//                                        .font(.subheadline)
+//                                    Text("Eksterior")
+//                                        .font(.subheadline)
+//                                        .fontWeight(.bold)
+//                                    Spacer()
+//                                    Text("10/10")
+//                                        .font(.subheadline)
+//                                        .fontWeight(.semibold)
+//                                }
+//                                .padding(.vertical, 8)
+//                                .padding(.horizontal, 12)
+//                                .background(.thinMaterial)
+//                                .cornerRadius(10)
+//
+//                                // Detail Item
+//                                VStack(spacing: 12) {
+//                                    DetailItemView(title: "Bodi Mobil", status: .good)
+//                                    Divider()
+//                                    DetailItemView(title: "Kaca Jendela", status: .good)
+//                                }
+//                                .padding(12)
+//                                .background(.ultraThinMaterial)
+//                                .cornerRadius(10)
+//                            }
                         }
                         .padding(.horizontal)
                         
@@ -259,5 +292,25 @@ struct DetailItemView: View {
 }
 
 #Preview {
-    ResultView()
+    let context = PersistenceController.preview.container.viewContext
+    let viewModel = CarViewModel(context: context)
+    
+    // kalau belum ada mobil di preview DB, tambahkan satu
+    if viewModel.cars.isEmpty {
+        let car = Car(context: context)
+        car.carId = UUID()
+        car.name = "Mitsubishi Xpander"
+        car.year = "2021"
+        car.kilometer = "25.000"
+        car.location = "Surabaya"
+        car.note = "Kondisi sangat bagus"
+        car.createdAt = Date()
+        try? context.save()
+        viewModel.fetchCars()
+    }
+    
+    // ambil mobil pertama untuk preview
+    return ResultView(carReport: viewModel.cars.first!)
+        .environment(\.managedObjectContext, context)
+        .environmentObject(viewModel)
 }

@@ -11,12 +11,14 @@ import UIKit
 struct DetailCar: View {
     @State private var showEdit = false
     @State private var showInteriorModal = false
+    @State private var showReport = false
 
 
     @EnvironmentObject var viewModel: CarViewModel
     let car: Car
     
     var body: some View {
+        let countComponent = viewModel.countComponent(for: car)
         ScrollView {
             VStack(spacing: 16) {
                 // Foto mobil
@@ -56,7 +58,7 @@ struct DetailCar: View {
                 // Grid menu
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 24) {
                     MenuItem(icon: "car.fill", title: "Eksterior", count: 0, total: 10)
-                    MenuItem(icon: "steeringwheel", title: "Interior", count: 0, total: 8)
+                    MenuItem(icon: "steeringwheel", title: "Interior", count: countComponent, total: 8)
                         .onTapGesture {
                             viewModel.syncInspectionItems(for: car)
                             showInteriorModal = true}
@@ -68,7 +70,7 @@ struct DetailCar: View {
                 .padding(.top, 12)
                 
                 Button(action: {
-                    // TODO: aksi lihat report
+                    showReport = true
                 }) {
                     Text("Lihat Report Kondisi Mobil")
                         .font(.headline)
@@ -79,7 +81,9 @@ struct DetailCar: View {
                         .cornerRadius(12)
                 }
                 .padding(.top, 20)
-                // sheet
+                .sheet(isPresented: $showReport) {
+                    ResultView(carReport: car)
+                }
             }
             .padding()
         }
@@ -118,9 +122,6 @@ struct DetailCar: View {
                         }
                     }
                 }
-                
-                let total =  viewModel.totalStatus(for: car)
-                print("total status: \(total)")
             }
         }
 

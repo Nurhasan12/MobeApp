@@ -10,7 +10,7 @@ import SwiftUI
 struct CheckList: View {
     
     @Binding var item: InspectionItem
-    var onTap: () -> Void  // tambahkan ini
+    var onTap: () -> Void
     
     @State private var isExpanded = false
     @State private var selectedStatus = 0
@@ -23,6 +23,23 @@ struct CheckList: View {
                     .bold()
                 
                 Spacer()
+                
+                Group {
+                        switch item.status {
+                        case 5:
+                            Image(systemName: "hand.thumbsup.fill")
+                                .foregroundStyle(.green)
+                        case 3:
+                            Image(systemName: "hand.thumbsup.fill")
+                                .foregroundStyle(.yellow)
+                                .rotationEffect(.degrees(270))
+                        case 1:
+                            Image(systemName: "hand.thumbsdown.fill")
+                                .foregroundStyle(.red)
+                        default:
+                            EmptyView() // tidak tampil kalau 0
+                        }
+                    }
                 
                 Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                     .bold()
@@ -127,6 +144,11 @@ func statusButton(
     .clipShape(RoundedRectangle(cornerRadius: 8))
     
     .onTapGesture {
-        selectedStatus.wrappedValue = option
-    }
+        if selectedStatus.wrappedValue == option {
+                    
+                    selectedStatus.wrappedValue = 0
+                } else {
+                
+                    selectedStatus.wrappedValue = option
+                }    }
 }

@@ -24,7 +24,6 @@ struct ListCar: View {
                     Button(role: .destructive) {
                         if let index = viewModel.cars.firstIndex(of: car) {
                             viewModel.deleteItems(offsets: IndexSet(integer: index))
-                            viewModel.fetchCars()
                         }
                     } label: {
                         Label("Hapus", systemImage: "trash")
@@ -46,12 +45,6 @@ struct ListCar: View {
         }) { car in
             EditCarView(car: car)
         }
-    }
-    
-    private func didDismiss() {
-        guard let car = selectedCar else { return }
-        viewModel.addComponentsIfNotExist(to: car, items: viewModel.itemsInspection)
-        selectedCar = nil
     }
 }
 

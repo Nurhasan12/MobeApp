@@ -68,6 +68,58 @@ class CarViewModel : ObservableObject {
             }
         }
     }
+    
+    func statusSummary(for car: Car) -> (good: Int, attention: Int, critical: Int) {
+        let komponenSet = car.komponen as? Set<Component> ?? []
+        
+        var good = 0, attention = 0, critical = 0
+        
+        for comp in komponenSet {
+            if let stats = comp.checklist?.stats {
+                switch stats {
+                case 5: good += 1
+                case 3: attention += 1
+                case 1: critical += 1
+                default: break
+                }
+            }
+        }
+        return (good, attention, critical)
+    }
+    
+    func percentageScore(for car: Car) -> Int {
+        let komponenSet = car.komponen as? Set<Component> ?? []
+
+        var totalScore = 0
+        var counted = 0
+
+        for comp in komponenSet {
+            let s = Int(comp.checklist?.stats ?? 0)   // null → 0
+            if s > 0 {
+                totalScore += min(s, 5)              // jaga-jaga kalau ada nilai >5
+                counted += 1                          // hanya hitung komponen yang >0
+            }
+        }
+
+        guard counted > 0 else { return 0 }          // hindari pembagian nol
+        let maxScore = counted * 5                    // hanya komponen yang >0
+        return (totalScore * 100) / maxScore
+    }
+    
+    func countComponent(for car: Car) -> Int {
+        let komponenSet = car.komponen as? Set<Component> ?? []
+        
+        var counted = 0
+        
+        for comp in komponenSet {
+            let s = Int(comp.checklist?.stats ?? 0)   // null → 0
+            if s > 0 {
+                counted += 1                          // hanya hitung komponen yang >0
+            }
+        }
+        return counted
+    }
+    
 
     
     func addCar(
