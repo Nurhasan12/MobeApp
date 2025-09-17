@@ -15,8 +15,8 @@ struct AddCar: View {
     
     
     @Environment(\.dismiss) private var dismiss
+    @State var isClosing = false
     
-    // State ringan (UI only)
     @State private var name = ""
     @State private var year = ""
     @State private var kilometerText = ""
@@ -26,14 +26,24 @@ struct AddCar: View {
     @State private var photoData: Data?
     @State private var showCancelConfirm = false
     
+    @State private var yearError: String? = nil
+    @State private var kilometerError: String? = nil
+    
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
                     LabeledField(systemImage: "car.fill", hint: "Nama Mobil", text: $name)
-                    LabeledField(systemImage: "calendar", hint: "Tahun", text: $year)
-                    LabeledField(systemImage: "speedometer", hint: "Kilometer", text: $kilometerText)
+                    LabeledField(systemImage: "calendar", hint: "Tahun", text: $year, keyboardType: .numberPad, errorMessage: yearError)
+                        .onChange(of: year) { oldValue, newValue in
+                            yearError = Int(newValue) == nil ? "Tahun harus angka" : nil
+                        }
+                    
+                    LabeledField(systemImage: "speedometer", hint: "Kilometer", text: $kilometerText, keyboardType: .decimalPad, errorMessage: kilometerError)
+                        .onChange(of: kilometerText) { oldValue, newValue in
+                            kilometerError = Double(newValue) == nil ? "Kilometer harus angka" : nil
+                        }
                     LabeledField(systemImage: "location", hint: "Lokasi", text: $location)
                     
                     
@@ -98,11 +108,18 @@ struct AddCar: View {
                     Button("Simpan") {
                         viewModel.addCar(name: name, year: year, kilometer: kilometerText, location: location, note: notes, img: photoData)
                         
-                        dismiss()
+                        withAnimation(.easeInOut(duration: 1.0)){
+                            isClosing = true
+                        }
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            dismiss()
+                        }
+                        
                         print(viewModel.cars)
                     }
                     .bold()
-                    .disabled(name.isEmpty)
+                    .disabled(name.isEmpty || yearError != nil || kilometerError != nil)
                 }
             }
             .confirmationDialog("Batalkan pengisian?", isPresented: $showCancelConfirm, titleVisibility: .visible) {
@@ -136,22 +153,38 @@ struct LabeledField: View {
     let hint: String
     @Binding var text: String
     
+    var keyboardType: UIKeyboardType = .default
+    
+    var errorMessage: String? = nil
+    
     var body: some View {
-        let bg = RoundedRectangle(cornerRadius: 12).fill(Color(.white))
-        let border = RoundedRectangle(cornerRadius: 12).stroke(Color(.quaternaryLabel), lineWidth: 1)
-        
-        HStack(spacing: 8) {
-            Image(systemName: systemImage)
-                .foregroundStyle(.secondary)
-                .frame(width: 20)
-            TextField(hint, text: $text)
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 8) {
+                Image(systemName: systemImage)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 20)
+                
+                TextField(hint, text: $text)
+                    .keyboardType(keyboardType)
+            }
+            .padding(12)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Color(.white)))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(errorMessage == nil ? Color(.quaternaryLabel) : Color.red, lineWidth: 1)
+            )
+            
+            if let error = errorMessage {
+                Text(error)
+                    .font(.caption)
+                    .foregroundColor(.red)
+                    .padding(.leading, 28) // biar rata dengan text field
+            }
         }
-        .padding(12)
-        .background(bg)
-        .overlay(border)
     }
 }
 
 #Preview {
     Home()
+        .environmentObject(CarViewModel(context: PersistenceController.shared.container.viewContext))
 }

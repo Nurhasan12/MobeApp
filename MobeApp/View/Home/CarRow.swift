@@ -14,6 +14,7 @@ struct CarRow: View {
     
     var body: some View {
         let percentage = viewModel.percentageScore(for: car)
+
         HStack(spacing: 12) {
             if let data = car.imageData, let uiImage = UIImage(data: data) {
                 Image(uiImage: uiImage)
@@ -48,15 +49,18 @@ struct CarRow: View {
                 }
             }
             Spacer()
-            VStack{
+            
+            
+            VStack {
                 Text("Kondisi")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
                 Text("\(percentage)%")
                     .font(.footnote)
                     .fontWeight(.bold)
-                    .foregroundStyle(percentage > 70 ? .green : (percentage > 40 ? .orange : .red))
+                    .foregroundColor(percentage > 70 ? .green : (percentage > 40 ? .orange : .red))
             }
+            .frame(minWidth: 50) 
         }
         .padding(.vertical, 4)
         .contentShape(Rectangle())
